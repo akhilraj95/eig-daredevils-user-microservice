@@ -12,7 +12,7 @@ from models import Profile
 import requests
 
 
-APPSECRET = "DAREDEVIL2017"
+APPSECRET = "DAREDEVIL2017XMEN"
 todo_server_url = "http://172.16.174.6:3000"
 get_todo_url = todo_server_url+"/todos/"
 
@@ -53,8 +53,8 @@ def user(request):
             user.last_name = lastname
             user.email = email
             user.profile.superpower = superpower
-            user.profile.xmen = False
-            user.profile.avenger = True
+            user.profile.xmen = True
+            user.profile.avenger = False
             user.save()
             return HttpResponse(status=201)
         except:
@@ -109,8 +109,6 @@ def dashboard(request):
             squad = User.objects.all().exclude(id__in=[userid,2]).select_related("profile")
             profiles = Profile.objects.all()
 
-            usr = squad[1]
-            print profiles.get(user = usr).superpower
             squad_json = [{'userid' : usr.id,
                                       'username': usr.username,
                                       'email' : usr.email,
