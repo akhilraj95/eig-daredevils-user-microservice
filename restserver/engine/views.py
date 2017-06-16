@@ -17,6 +17,18 @@ todo_server_url = "http://172.16.174.6:3000"
 get_todo_url = todo_server_url+"/todos/"
 
 
+# Verify the JWT token
+def accessTokenVerify(request):
+    accesstoken = request.META.get('HTTP_ACCESSTOKEN')
+    decodedjson = jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
+    # print decodedjson['username']
+    userid = decodedjson['userid']
+    groupid = decodedjson['groupid']
+    return userid,groupid
+
+
+
+
 
 
 @csrf_exempt
@@ -91,11 +103,7 @@ def login(request):
 def dashboard(request):
     if request.method == 'GET':
         try:
-            accesstoken = request.META.get('HTTP_ACCESSTOKEN')
-            decodedjson = jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
-            print decodedjson['username']
-            userid = decodedjson['userid']
-            groupid = decodedjson['groupid']
+            userid,groupid = accessTokenVerify(request)
 
             #getting squad information
             squad = User.objects.all().exclude(id__in=[userid,2]).select_related("profile")
@@ -128,15 +136,12 @@ def dashboard(request):
         except:
             return HttpResponse(status=400)
 
-
+# TODO: Update todo
 @csrf_exempt
 def todo(request):
     if request.method == 'POST':
         try:
-            accesstoken = request.META.get('HTTP_ACCESSTOKEN')
-            decodedjson = jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
-            userid = decodedjson['userid']
-            groupid = decodedjson['groupid']
+            userid,groupid = accessTokenVerify(request)
 
             received_json_data=json.loads(request.body)
             description = received_json_data["description"]
@@ -160,6 +165,13 @@ def todo(request):
                 return HttpResponse(status=500)
         except:
             return HttpResponse(status=400)
-    elif request.method == 'POST':
-        pass
+    elif request.method == 'PUT':
+        userid,groupid = accessTokenVerify(request)
+        received_json_data=json.loads(request.body)
+        description = received_json_data["description"]
+        status = received_json_data["status"]
+        type_var = received_json_data["type"]
+        type_var = received_json_data["id"]
+
+        return HttpResponse(status=200)
     return HttpResponse(status=404)
