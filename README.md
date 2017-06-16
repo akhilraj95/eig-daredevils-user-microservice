@@ -9,30 +9,38 @@ user microservice
 #### by curl
 ```
 curl -X POST \
-  http://127.0.0.1:8000/user \
-  -H 'cache-control: no-cache' \
-  -H 'content-type: application/x-www-form-urlencoded' \
-  -d data=%7B%22username%22%20%3A%20%22wolverine%22%2C%20%22password%22%20%3A%20%22wolverinepass%22%2C%22email%22%20%3A%20%22wolverine%40endurance.com%22%2C%22firstname%22%20%3A%20%22wolverine%22%2C%22lastname%22%20%3A%20%22wolf%22%2C%22superpower%22%20%3A%20%22claws%22%7D
+  http://172.16.173.56:8000/user \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+  "data": {
+    "username": "logan",
+    "password": "12345678",
+    "email":"test@g.com",
+    "firstname": "feacdfdf",
+    "lastname": "world",
+    "superpower": "fire"
+  }
+}'
 ```
 
 #### by AJAX
 ```
 var settings = {
-  "async": true,
-  "crossDomain": true,
-  "url": "http://127.0.0.1:8000/user",
-  "method": "POST",
-  "headers": {
-    "content-type": "application/x-www-form-urlencoded",
-    "cache-control": "no-cache",
-  },
-  "data": {
-    "data": "{\"username\" : \"wolverine\", \"password\" : \"wolverinepass\",\"email\" : \"wolverine@endurance.com\",\"firstname\" : \"wolverine\",\"lastname\" : \"wolf\",\"superpower\" : \"claws\"}"
-  }
+  "async": true,
+  "crossDomain": true,
+  "url": "http://172.16.173.56:8000/user",
+  "method": "POST",
+  "headers": {
+    "content-type": "application/json",
+    "cache-control": "no-cache",
+  },
+  "processData": false,
+  "data": "{\n\t\"data\": {\n\t\t\"username\": \"logan\",\n\t\t\"password\": \"12345678\",\n\t\t\"email\":\"test@g.com\",\n\t\t\"firstname\": \"feacdfdf\",\n\t\t\"lastname\": \"world\",\n\t\t\"superpower\": \"fire\"\n\t}\n}"
 }
 
 $.ajax(settings).done(function (response) {
-  console.log(response);
+  console.log(response);
 });
 ```
 ### response

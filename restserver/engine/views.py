@@ -8,25 +8,25 @@ import jwt
 import time
 from models import AccessToken
 from django.http import QueryDict
+from models import Profile
+import requests
 
 
 APPSECRET = "DAREDEVIL2017"
+todo_server_url = "http://172.16.174.6:3000"
+get_todo_url = todo_server_url+"/todos"
+
+
+
 
 @csrf_exempt
 def user(request):
-    if request.method == 'GET':
-        pass
-        # getting user  ---- DEBUG ONLY
-        # users = User.objects.all().select_related('profile')
-        # return HttpResponse(json.dumps([{'userid' : usr.id,
-        #                                  'username': usr.username,
-        #                                  'email' : usr.email} for usr in users]),
-        #                      content_type='application/json')
-    elif request.method == 'POST':
+    if request.method == 'POST':
         # adding user
         try:
             #getting post args
-            received_json_data=json.loads(request.POST['data'])
+            print request.body
+            received_json_data=json.loads(request.body)["data"]
 
             username = received_json_data['username']
             password = received_json_data['password']
@@ -55,7 +55,7 @@ def login(request):
     if request.method == 'POST':
         # creating AWT token
             # getting post args
-            received_json_data=json.loads(request.POST['data'])
+            received_json_data=json.loads(request.body)["data"]
 
             username = received_json_data['username']
             password = received_json_data['password']
@@ -64,6 +64,7 @@ def login(request):
                 # # A backend authenticated the credentials
                 encoded = jwt.encode({'userid': user.id,
                                       'username': user.username,
+                                      'groupid' : "avenger",
                                       'time': int(time.time())
                                      }, APPSECRET, algorithm='HS256')
 
@@ -76,21 +77,52 @@ def login(request):
             else:
                 return HttpResponse(status=400)
     if request.method == 'DELETE':
-        # try:
+        try:
             accesstoken = request.META.get('HTTP_ACCESSTOKEN')
-            print accesstoken
             jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
             AccessToken.objects.get(jwt=accesstoken).delete()
             return HttpResponse(status=200)
-        # except:
-        #     return HttpResponse(status=400)
+        except:
+            return HttpResponse(status=400)
     raise Http404("(-__-) 404!")
 
 
-def squad(request):
+def dashboard(request):
     if request.method == 'GET':
-        users = User.objects.all().select_related('profile')
-        return HttpResponse(json.dumps([{'userid' : usr.id,
-                                         'username': usr.username,
-                                         'email' : usr.email} for usr in users]),
-                             content_type='application/json')
+        try:
+            accesstoken = request.META.get('HTTP_ACCESSTOKEN')
+            decodedjson = jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
+            print decodedjson['username']
+            userid = decodedjson['userid']
+            groupid = decodedjson['groupid']
+
+            #getting squad information
+            squad = User.objects.all().exclude(id__in=[userid,2]).select_related("profile")
+            profiles = Profile.objects.all()
+
+            usr = squad[1]
+            print profiles.get(user = usr).superpower
+            squad_json = [{'userid' : usr.id,
+                                      'username': usr.username,
+                                      'email' : usr.email,
+                                      'firstname': usr.first_name,
+                                      'lastname': usr.last_name,
+                                      'superpower': profiles.filter(user = usr)[0].superpower,
+                                      'avenger': profiles.filter(user = usr)[0].avenger,
+                                      'xmen': profiles.filter(user = usr)[0].xmen } for usr in squad]
+
+            #getting todos both personal and group
+            querystring = {"userid":userid,"groupid":groupid}
+            headers = {
+                'cache-control': "no-cache",
+                }
+            response = requests.request("GET", get_todo_url, headers=headers, params=querystring)
+            todo_json = json.loads(response.text)
+
+            data = {}
+            data['squad'] = squad_json
+            data['todo'] = todo_json["message"]
+
+            return HttpResponse(json.dumps(data),status=200 ,content_type='application/json')
+        except:
+            return HttpResponse(status=400)
