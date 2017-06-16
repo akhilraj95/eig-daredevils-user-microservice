@@ -127,3 +127,70 @@ $.ajax(settings).done(function (response) {
 
 success then, status 200
 failure then, status 400
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+## create todo
+
+### by curl
+```
+curl -X POST \
+  http://0.0.0.0:8000/todo \
+  -H 'accesstoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywiZ3JvdXBpZCI6ImF2ZW5nZXIiLCJ0aW1lIjoxNDk3NjA4MDM0fQ.sqlu0uhtIFkg8sBRV_lzxpQPTOrvGWO7qL08Gfwaiwk' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+	"description" : "avenger group meet",
+	"status" : "pending",
+	"type" : "group"
+}'
+```
+### by ajax
+```
+var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "http://0.0.0.0:8000/todo",
+  "method": "POST",
+  "headers": {
+    "content-type": "application/json",
+    "accesstoken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywiZ3JvdXBpZCI6ImF2ZW5nZXIiLCJ0aW1lIjoxNDk3NjA4MDM0fQ.sqlu0uhtIFkg8sBRV_lzxpQPTOrvGWO7qL08Gfwaiwk",
+    "cache-control": "no-cache",
+  },
+  "processData": false,
+  "data": "{\n\t\"description\" : \"avenger group meet\",\n\t\"status\" : \"pending\",\n\t\"type\" : \"group\"\n}"
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+```
+--------------------------------------------------------------------------------------------------------------------
+
+## dashboard
+
+### by curl
+```
+curl -X GET \
+  http://127.0.0.1:8000/dashboard \
+  -H 'accesstoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywiZ3JvdXBpZCI6ImF2ZW5nZXIiLCJ0aW1lIjoxNDk3NjAwNzAyfQ.13p2p2naArvI8U_n8P9zy4osEN43QA5gIG5AQpW3VU0' \
+  -H 'cache-control: no-cache' \
+```
+### by ajax
+```
+var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "http://127.0.0.1:8000/dashboard",
+  "method": "GET",
+  "headers": {
+    "accesstoken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywiZ3JvdXBpZCI6ImF2ZW5nZXIiLCJ0aW1lIjoxNDk3NjAwNzAyfQ.13p2p2naArvI8U_n8P9zy4osEN43QA5gIG5AQpW3VU0",
+    "cache-control": "no-cache",
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+```

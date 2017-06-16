@@ -14,7 +14,7 @@ import requests
 
 APPSECRET = "DAREDEVIL2017"
 todo_server_url = "http://172.16.174.6:3000"
-get_todo_url = todo_server_url+"/todos"
+get_todo_url = todo_server_url+"/todos/"
 
 
 
@@ -87,6 +87,7 @@ def login(request):
     raise Http404("(-__-) 404!")
 
 
+@csrf_exempt
 def dashboard(request):
     if request.method == 'GET':
         try:
@@ -126,3 +127,39 @@ def dashboard(request):
             return HttpResponse(json.dumps(data),status=200 ,content_type='application/json')
         except:
             return HttpResponse(status=400)
+
+
+@csrf_exempt
+def todo(request):
+    if request.method == 'POST':
+        try:
+            accesstoken = request.META.get('HTTP_ACCESSTOKEN')
+            decodedjson = jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
+            userid = decodedjson['userid']
+            groupid = decodedjson['groupid']
+
+            received_json_data=json.loads(request.body)
+            description = received_json_data["description"]
+            status = received_json_data["status"]
+            type_var = received_json_data["type"]
+
+            url = "http://172.16.174.6:3000/todos"
+
+            payload = "{\n\t\"description\" : \""+description+"\",\n\t\"status\" : \""+status+"\",\n\t\"type\" : \""+type_var+"\",\n\t\"userid\" : \""+str(userid)+"\",\n\t\"groupid\" : \""+str(groupid)+"\"\n}"
+            headers = {
+                'content-type': "application/json",
+                }
+
+            response = requests.request("POST", url, data=payload, headers=headers)
+
+            print(response.text)
+            print(response.headers)
+            if response.status_code == 201:
+                return HttpResponse(status=201)
+            else:
+                return HttpResponse(status=500)
+        except:
+            return HttpResponse(status=400)
+    elif request.method == 'POST':
+        pass
+    return HttpResponse(status=404)
