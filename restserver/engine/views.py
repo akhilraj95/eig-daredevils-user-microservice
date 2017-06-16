@@ -25,7 +25,7 @@ def user(request):
     elif request.method == 'POST':
         # adding user
         try:
-            getting post args
+            #getting post args
             received_json_data=json.loads(request.POST['data'])
 
             username = received_json_data['username']
@@ -76,20 +76,21 @@ def login(request):
             else:
                 return HttpResponse(status=400)
     if request.method == 'DELETE':
-        try:
-            destroying AWT token
-            put_dict = {k: v[0] if len(v)==1 else v for k, v in QueryDict(request.body).lists()}
-            received_json_data=json.loads(put_dict['data'])
-            accesstoken = received_json_data['accesstoken']
+        # try:
+            accesstoken = request.META.get('HTTP_ACCESSTOKEN')
+            print accesstoken
             jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
             AccessToken.objects.get(jwt=accesstoken).delete()
             return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=400)
+        # except:
+        #     return HttpResponse(status=400)
     raise Http404("(-__-) 404!")
 
 
-@csrf_exempt
-def logout(request):
-
-    raise Http404("(-__-) 404!")
+def squad(request):
+    if request.method == 'GET':
+        users = User.objects.all().select_related('profile')
+        return HttpResponse(json.dumps([{'userid' : usr.id,
+                                         'username': usr.username,
+                                         'email' : usr.email} for usr in users]),
+                             content_type='application/json')

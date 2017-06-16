@@ -84,6 +84,7 @@ $.ajax(settings).done(function (response) {
 ---------------------------------------------------------------------------------------------------------------------------------
 
 
+
 ## logout
 
 ### request
@@ -92,9 +93,9 @@ $.ajax(settings).done(function (response) {
 ```
 curl -X DELETE \
   http://127.0.0.1:8000/authenticate \
+  -H 'accesstoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywidGltZSI6MTQ5NzU5NTc4N30.dNOfgARRjBtVyB9WJMgLSXyo5-JTwzp9eZU8-pu-4A4' \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/x-www-form-urlencoded' \
-  -d data=%7B%22accesstoken%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywidGltZSI6MTQ5NzU4NDU4NX0.czW23GyLdVpgnAXWF67BaFzdIBYCn4eXgdI4OGpwCGE%22%7D
 ```
 #### by ajax
 ```
@@ -104,11 +105,9 @@ var settings = {
   "url": "http://127.0.0.1:8000/authenticate",
   "method": "DELETE",
   "headers": {
-    "content-type": "application/x-www-form-urlencoded",
+    "accesstoken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywidGltZSI6MTQ5NzU5NTc4N30.dNOfgARRjBtVyB9WJMgLSXyo5-JTwzp9eZU8-pu-4A4",
     "cache-control": "no-cache",
-  },
-  "data": {
-    "data": "{\"accesstoken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNwb25nZWJvYiIsInVzZXJpZCI6MywidGltZSI6MTQ5NzU4NDU4NX0.czW23GyLdVpgnAXWF67BaFzdIBYCn4eXgdI4OGpwCGE\"}"
+    "content-type": "application/x-www-form-urlencoded"
   }
 }
 
