@@ -12,21 +12,20 @@ from django.http import QueryDict
 
 APPSECRET = "DAREDEVIL2017"
 
-
-# TODO: set group id
 @csrf_exempt
 def user(request):
     if request.method == 'GET':
-        # getting user
-        users = User.objects.all().select_related('profile')
-        return HttpResponse(json.dumps([{'userid' : usr.id,
-                                         'username': usr.username,
-                                         'email' : usr.email} for usr in users]),
-                             content_type='application/json')
+        pass
+        # getting user  ---- DEBUG ONLY
+        # users = User.objects.all().select_related('profile')
+        # return HttpResponse(json.dumps([{'userid' : usr.id,
+        #                                  'username': usr.username,
+        #                                  'email' : usr.email} for usr in users]),
+        #                      content_type='application/json')
     elif request.method == 'POST':
         # adding user
-        #try:
-            # getting post args
+        try:
+            getting post args
             received_json_data=json.loads(request.POST['data'])
 
             username = received_json_data['username']
@@ -46,8 +45,8 @@ def user(request):
             user.profile.avenger = True
             user.save()
             return HttpResponse(status=201)
-        # except:
-        #     raise Http404("(-__-) 404!")
+        except:
+            return HttpResponse(status=500)
     raise Http404("(-__-) 404!")
 
 
@@ -76,18 +75,17 @@ def login(request):
                 return HttpResponse(data,content_type='application/json',status=202)
             else:
                 return HttpResponse(status=400)
-                # No backend authenticated the credentials
     if request.method == 'DELETE':
-        # try:
-            # destroying AWT token
+        try:
+            destroying AWT token
             put_dict = {k: v[0] if len(v)==1 else v for k, v in QueryDict(request.body).lists()}
             received_json_data=json.loads(put_dict['data'])
             accesstoken = received_json_data['accesstoken']
             jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
             AccessToken.objects.get(jwt=accesstoken).delete()
             return HttpResponse(status=200)
-        # except:
-        #     return HttpResponse(status=400)
+        except:
+            return HttpResponse(status=400)
     raise Http404("(-__-) 404!")
 
 
