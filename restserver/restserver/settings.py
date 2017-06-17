@@ -130,3 +130,10 @@ CORS_ORIGIN_WHITELIST = (
     'http://0.0.0.0:3001',
     'http://127.0.0.1:3001',      
 )
+
+
+
+CORS_ALLOW_HEADERS = (
+    'content-type',
+    'accesstoken',
+)

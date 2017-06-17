@@ -6,16 +6,22 @@ from django.core import serializers
 from django.contrib.auth import authenticate
 import jwt
 import time
-from models import AccessToken
+from models import AccessToken,Bio
 from django.http import QueryDict
 from models import Profile
 import requests
-
+import BeautifulSoup as bs4
+import re
 
 APPSECRET = "DAREDEVIL2017XMEN"
-todo_server_url = "http://172.16.174.6:3000"
+todo_server_url = "http://10.128.5.116:3000"
 get_todo_url = todo_server_url+"/todos/"
 
+
+
+def default_html():
+    html = """<h4>welcome to your default bio.</h4>"""
+    return html
 
 # Verify the JWT token
 def accessTokenVerify(request):
@@ -24,8 +30,35 @@ def accessTokenVerify(request):
     # print decodedjson['username']
     userid = decodedjson['userid']
     groupid = decodedjson['groupid']
+    user = User.objects.get(id = userid)
+    num_results = AccessToken.objects.filter(user = user, jwt = accesstoken).count()
+    if num_results == 0:
+        raise Exception("Invalid JWT");    
     return userid,groupid
 
+
+
+def cleanHTML(rawtext):
+    soup = bs4.BeautifulSoup(str(rawtext))
+    try:
+        soup.script.decompose()
+    except:
+        print "no script"
+    try:
+        soup.form.decompose()
+    except:
+        print "no form"
+    try:
+        soup.button.decompose()
+    except:
+        print "no button"
+    try:
+        soup.link.decompose()
+    except:
+        print "no link"
+    text = str(soup)
+    text = re.sub(r'on(.)+=(\s)*"(.)+"', '', text)
+    return text
 
 
 
@@ -146,7 +179,7 @@ def todo(request):
             status = received_json_data["status"]
             type_var = received_json_data["type"]
 
-            url = "http://172.16.174.6:3000/todos"
+            url = "http://10.128.5.116:3000/todos"
 
             payload = "{\n\t\"description\" : \""+description+"\",\n\t\"status\" : \""+status+"\",\n\t\"type\" : \""+type_var+"\",\n\t\"userid\" : \""+str(userid)+"\",\n\t\"groupid\" : \""+str(groupid)+"\"\n}"
             headers = {
@@ -173,3 +206,53 @@ def todo(request):
 
         return HttpResponse(status=200)
     return HttpResponse(status=404)
+
+
+
+
+@csrf_exempt
+def bio(request):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(id = userid)
+        bio = Bio.objects.filter(user = user)
+        if bio.count() == 0:
+            return HttpResponse(default_html(),status=200)
+        else:
+            return HttpResponse(bio[0].html,status=200)
+    elif request.method == 'POST':
+        # try:
+            userid,groupid = accessTokenVerify(request)
+            received_json_data=json.loads(request.body)
+            html = received_json_data["data"]
+            html = cleanHTML(html)
+            user = User.objects.get(id=userid)
+            bios = Bio.objects.filter(user = user)
+            if(bios.count() == 0):
+                Bio.objects.create(user=user,html=html)
+            else:
+                b = Bio.objects.get(user=user)
+                b.html = html
+                b.save()
+            return HttpResponse(status=200)
+        # except:
+        #     return HttpResponse(status=400)
+    return HttpResponse(status=400)
+
+
+
+@csrf_exempt
+def sanitize(request):
+    if request.method == 'POST':
+            userid,groupid = accessTokenVerify(request)
+            received_json_data=json.loads(request.body)
+            html = received_json_data["data"]
+            html = cleanHTML(html)
+            return HttpResponse(html,status=200)
+        
+    return HttpResponse(status=400)
+
+
+
+
+
