@@ -14,7 +14,7 @@ import BeautifulSoup as bs4
 import re
 
 APPSECRET = "DAREDEVIL2017"
-todo_server_url = "http://10.128.5.116:3000"
+todo_server_url = "http://192.168.43.14:3000"
 get_todo_url = todo_server_url+"/todos/"
 
 
@@ -113,21 +113,20 @@ def login(request):
                                      }, APPSECRET, algorithm='HS256')
 
                 AccessToken.objects.create(user = user, jwt=encoded);
-                data = json.dumps({ 'userid' : user.id,
-                                    'username': user.username,
+                data = json.dumps({ 
                                     'accesstoken': encoded
                                  })
                 return HttpResponse(data,content_type='application/json',status=202)
             else:
                 return HttpResponse(status=400)
     if request.method == 'DELETE':
-        try:
+        #try:
             accesstoken = request.META.get('HTTP_ACCESSTOKEN')
             jwt.decode(accesstoken, APPSECRET , algorithms=['HS256'])
             AccessToken.objects.get(jwt=accesstoken).delete()
             return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=400)
+        # except:
+        #     return HttpResponse(status=400)
     raise Http404("(-__-) 404!")
 
 
@@ -213,7 +212,7 @@ def todo(request):
 def bio(request):
     if request.method == 'GET':
         userid,groupid = accessTokenVerify(request)
-        user = User.objects.get(id = userid)
+        user = User.objects.gset(id = userid)
         bio = Bio.objects.filter(user = user)
         if bio.count() == 0:
             return HttpResponse(default_html(),status=200)
@@ -227,7 +226,7 @@ def bio(request):
             html = cleanHTML(html)
             user = User.objects.get(id=userid)
             bios = Bio.objects.filter(user = user)
-            if(bios.count == 0):
+            if(bios.count() == 0):
                 Bio.objects.create(user=user,html=html)
             else:
                 b = Bio.objects.get(user=user)
@@ -248,10 +247,67 @@ def sanitize(request):
             html = received_json_data["data"]
             html = cleanHTML(html)
             return HttpResponse(html,status=200)
-        
     return HttpResponse(status=400)
 
 
+@csrf_exempt
+def bio_others(request,username):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(username = username)
+        bios = Bio.objects.filter(user = user)
+        if(bios.count() == 0):
+            return HttpResponse(default_html(),status=200)
+        else:
+            return HttpResponse(bios[0].html,status=200)
+        return HttpResponse(status=200)
+    else:
+        return HttpResponse(status=404)
 
 
+##AVENGER
+
+
+REST_SERVER_TOKEN = 'ANVITHAGKBHAT'
+
+@csrf_exempt
+def getXmenTodo(request):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(id=userid)
+        encoded = jwt.encode({
+                              'email': user.email,
+                              'groupid' : "avenger",
+                              'time': int(time.time())
+                             }, REST_SERVER_TOKEN, algorithm='HS256')   
+        xmen_url = "http://0.0.0.0:9999/avengerendpoint"
+        payload = "{\"token\" : \""+encoded+"\"}"
+        headers = {
+            'content-type': "application/json",
+            }
+        response = requests.request("POST", xmen_url, data=payload, headers=headers)
+        return HttpResponse(response,status=200)
+    else:
+        return HttpResponse("404")
+
+
+
+@csrf_exempt
+def xmenendpoint(request):    
+    if request.method == 'POST':
+        print request.body
+        received_json_data=json.loads(request.body)
+        token = received_json_data["token"]
+        decodedjson = jwt.decode(token, REST_SERVER_TOKEN , algorithms=['HS256'])
+        email = decodedjson['email']
+        user = User.objects.get(email=email)
+
+        #getting todos both personal and group
+        querystring = {"userid":user.id}
+        headers = {
+            'cache-control': "no-cache",
+            }
+        response = requests.request("GET", get_todo_url, headers=headers, params=querystring)
+        return HttpResponse(response,status=200)
+    return HttpResponse('404')
 
