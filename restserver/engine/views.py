@@ -14,7 +14,7 @@ import BeautifulSoup as bs4
 import re
 
 APPSECRET = "DAREDEVIL2017XMEN"
-todo_server_url = "http://10.128.5.116:3000"
+todo_server_url = "http://192.168.43.14:3000"
 get_todo_url = todo_server_url+"/todos/"
 
 
@@ -114,9 +114,7 @@ def login(request):
                                      }, APPSECRET, algorithm='HS256')
 
                 AccessToken.objects.create(user = user, jwt=encoded);
-                data = json.dumps({ 'userid' : user.id,
-                                    'username': user.username,
-                                    'accesstoken': encoded
+                data = json.dumps({ 'accesstoken': encoded
                                  })
                 return HttpResponse(data,content_type='application/json',status=202)
             else:
@@ -254,5 +252,64 @@ def sanitize(request):
 
 
 
+
+
+@csrf_exempt
+def bio_others(request,username):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(username = username)
+        bios = Bio.objects.filter(user = user)
+        if(bios.count() == 0):
+            return HttpResponse(default_html(),status=200)
+        else:
+            return HttpResponse(bios[0].html,status=200)
+        return HttpResponse(status=200)
+    else:
+        return HttpResponse(status=404)
+
+##XMEN
+
+REST_SERVER_TOKEN = 'ANVITHAGKBHAT'
+
+@csrf_exempt
+def avengerendpoint(request):    
+    if request.method == 'POST':
+        print request.body
+        received_json_data=json.loads(request.body)
+        token = received_json_data["token"]
+        decodedjson = jwt.decode(token, REST_SERVER_TOKEN , algorithms=['HS256'])
+        email = decodedjson['email']
+        user = User.objects.get(email=email)
+
+        #getting todos both personal and group
+        querystring = {"userid":user.id}
+        headers = {
+            'cache-control': "no-cache",
+            }
+        response = requests.request("GET", get_todo_url, headers=headers, params=querystring)
+        return HttpResponse(response,status=200)
+    return HttpResponse('404')
+
+
+@csrf_exempt
+def getAvengerTodo(request):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(id=userid)
+        encoded = jwt.encode({
+                              'email': user.email,
+                              'groupid' : "avenger",
+                              'time': int(time.time())
+                             }, REST_SERVER_TOKEN, algorithm='HS256')   
+        xmen_url = "http://0.0.0.0:8888/xmenendpoint"
+        payload = "{\"token\" : \""+encoded+"\"}"
+        headers = {
+            'content-type': "application/json",
+            }
+        response = requests.request("POST", xmen_url, data=payload, headers=headers)
+        return HttpResponse(response,status=200)
+    else:
+        return HttpResponse("404")
 
 
