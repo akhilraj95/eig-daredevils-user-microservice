@@ -22,3 +22,9 @@ def save_user_profile(sender, instance, **kwargs):
 class AccessToken(models.Model):
     user = models.ForeignKey(User)
     jwt = models.TextField(max_length=500, blank=False)
+
+
+class Bio(models.Model):
+	user = models.ForeignKey(User)
+	html = models.TextField(max_length=10000,blank=True)
+    

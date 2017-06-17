@@ -124,10 +124,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-CORS_ORIGIN_WHITELIST = (
-    'http://10.128.5.116:3001',
-    'http://localhost:3001',
-    'http://0.0.0.0:3001',
-    'http://127.0.0.1:3001',      
-)
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = (
+#     'http://10.128.5.116:3001',
+#     'http://localhost:3001',
+#     'http://0.0.0.0:3001',
+#     'http://127.0.0.1:3001',      
+# )

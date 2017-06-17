@@ -194,3 +194,18 @@ $.ajax(settings).done(function (response) {
   console.log(response);
 });
 ```
+
+
+## Sanitize
+
+```
+curl -X POST \
+  http://0.0.0.0:8888/sanitize \
+  -H 'accesstoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imlyb25tYW4iLCJ1c2VyaWQiOjksImdyb3VwaWQiOiJhdmVuZ2VyIiwidGltZSI6MTQ5NzY0Mjc4OH0.7l1WWk4bz9AVs_WdijLlG4GXZvcTplB-7ocwh8wr4oo' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -H 'postman-token: c3075e3c-48a9-3ddc-94c1-f9cf9d2b0438' \
+  -d '{
+  "data": "<!DOCTYPE html>\r\n<html>\r\n<body>\r\n\r\n<div id=\"demo\">\r\n<h1>The XMLHttpRequest Object<\/h1>\r\n<button type=\"button\" onclick=\"loadDoc()\">Change Content<\/button>\r\n<\/div>\r\n\r\n<script>\r\nfunction loadDoc() {\r\n  var xhttp = new XMLHttpRequest();\r\n  xhttp.onreadystatechange = function() {\r\n    if (this.readyState == 4 && this.status == 200) {\r\n      document.getElementById(\"demo\").innerHTML =\r\n      this.responseText;\r\n    }\r\n  };\r\n  xhttp.open(\"GET\", \"ajax_info.txt\", true);\r\n  xhttp.send();\r\n}\r\n<\/script>\r\n\r\n\r\n<form action=\"\/action_page.php\">\r\n  <fieldset>\r\n    <legend>Personal information:<\/legend>\r\n    First name:<br>\r\n    <input type=\"text\" name=\"firstname\" value=\"Mickey\">\r\n    <br>\r\n    Last name:<br>\r\n    <input type=\"text\" name=\"lastname\" value=\"Mouse\">\r\n    <br><br>\r\n    <input type=\"submit\" value=\"Submit\">\r\n  <\/fieldset>\r\n<\/form>\r\n\r\n\r\n\r\n<a href=\"#\" onclick=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n\r\n<a href=\"#\" onclick=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n<a href=\"#\" onclick=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n<a href=\"#\" onclick=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n<a href=\"#\" onclick=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n\r\n\r\n<a href=\"#\" onabort=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n\r\n<a href=\"#\" ondurationchange=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n\r\n\r\n<a href=\"#\" onwaiting=\"$(this).next().fadeIn(); return false;\">Display my next sibling<\/a>\r\n\r\n\r\n<\/body>\r\n<\/html>"
+}'
+```
