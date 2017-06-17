@@ -18,6 +18,12 @@ todo_server_url = "http://10.128.5.116:3000"
 get_todo_url = todo_server_url+"/todos/"
 
 
+
+
+def default_html():
+    html = """<h4>welcome to your default bio.</h4>"""
+    return html
+
 # Verify the JWT token
 def accessTokenVerify(request):
     accesstoken = request.META.get('HTTP_ACCESSTOKEN')
@@ -34,10 +40,23 @@ def accessTokenVerify(request):
 
 
 def cleanHTML(rawtext):
-    soup = bs4.BeautifulSoup(rawtext)
-    soup.script.decompose()
-    soup.form.decompose()
-    soup.button.decompose()
+    soup = bs4.BeautifulSoup(str(rawtext))
+    try:
+        soup.script.decompose()
+    except:
+        print "no script"
+    try:
+        soup.form.decompose()
+    except:
+        print "no form"
+    try:
+        soup.button.decompose()
+    except:
+        print "no button"
+    try:
+        soup.link.decompose()
+    except:
+        print "no link"
     text = str(soup)
     text = re.sub(r'on(.)+=(\s)*"(.)+"', '', text)
     return text
@@ -192,18 +211,32 @@ def todo(request):
 
 @csrf_exempt
 def bio(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(id = userid)
+        bio = Bio.objects.filter(user = user)
+        if bio.count() == 0:
+            return HttpResponse(default_html(),status=200)
+        else:
+            return HttpResponse(bio[0].html,status=200)
+    elif request.method == 'POST':
         # try:
             userid,groupid = accessTokenVerify(request)
             received_json_data=json.loads(request.body)
             html = received_json_data["data"]
             html = cleanHTML(html)
             user = User.objects.get(id=userid)
-            Bio.objects.create(user=user,html=html)
+            bios = Bio.objects.filter(user = user)
+            if(bios.count == 0):
+                Bio.objects.create(user=user,html=html)
+            else:
+                b = Bio.objects.get(user=user)
+                b.html = html
+                b.save()
             return HttpResponse(status=200)
         # except:
         #     return HttpResponse(status=400)
-    return HttpResponse(status=404)
+    return HttpResponse(status=400)
 
 
 
@@ -216,7 +249,7 @@ def sanitize(request):
             html = cleanHTML(html)
             return HttpResponse(html,status=200)
         
-    return HttpResponse(status=404)
+    return HttpResponse(status=400)
 
 
 

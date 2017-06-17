@@ -25,7 +25,7 @@ SECRET_KEY = 'm79(#=a=c5$bts!=ulthpt6gxc=hhy)x_7^80xl7se_n%9j2s+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','172.16.173.56','127.0.0.1','10.128.1.59']
+ALLOWED_HOSTS = ['0.0.0.0','172.16.173.56','127.0.0.1','10.128.1.59','192.168.43.142']
 
 
 # Application definition
@@ -131,3 +131,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 #     'http://0.0.0.0:3001',
 #     'http://127.0.0.1:3001',      
 # )
+
+
+CORS_ALLOW_HEADERS = (
+    'content-type',
+    'accesstoken',
+)

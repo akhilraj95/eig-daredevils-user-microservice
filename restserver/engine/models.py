@@ -25,6 +25,6 @@ class AccessToken(models.Model):
 
 
 class Bio(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(User,unique = True)
 	html = models.TextField(max_length=10000,blank=True)
     
