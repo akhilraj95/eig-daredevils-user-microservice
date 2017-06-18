@@ -1,4 +1,4 @@
-# Dillinger
+# Eig-daredevils-user-microservice
 
 eig-daredevils-user-microservice is a coordinating backend service. Two instances of this service will run, one each for Avengers and Xmen. It functions as the user management, authentication, authorization(JWT token), serve todos. The service also allows XMEN server to access AVENGERS todo with the correct digital signature and vice-versa. The service gives a redirect endpoint that logs the Avenger user to log in to Xmen server without re-entering the credentials.
     
