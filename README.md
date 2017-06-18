@@ -13,7 +13,7 @@ eig-daredevils-user-microservice is a coordinating backend service. Two instance
 Architecture: 
 ![alt text][logo]
 
-[logo]: https://github.com/akhilraj95/eig-daredevils-user-microservice/arch.png "architechture"
+[logo]: https://raw.githubusercontent.com/akhilraj95/eig-daredevils-user-microservice/master/arch.png "architechture"
 
 
 ## Tech
