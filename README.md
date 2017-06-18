@@ -9,6 +9,13 @@ eig-daredevils-user-microservice is a coordinating backend service. Two instance
   - Both instances(xmen and avenger) can access each others todo
   - Redirect to each others instance without re-entering the credentials
 
+
+Architecture: 
+![alt text][logo]
+
+[logo]: https://github.com/akhilraj95/eig-daredevils-user-microservice/arch.png "architechture"
+
+
 ## Tech
 
 Dillinger uses a number of open source projects to work properly:
