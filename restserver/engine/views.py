@@ -18,6 +18,7 @@ todo_server_url = "http://192.168.43.14:3000"
 get_todo_url = todo_server_url+"/todos/"
 
 
+AVENGER_FRONTEND = "http://127.0.0.1:3001/redirect/"
 
 
 def default_html():
@@ -199,12 +200,21 @@ def todo(request):
     elif request.method == 'PUT':
         userid,groupid = accessTokenVerify(request)
         received_json_data=json.loads(request.body)
-        description = received_json_data["description"]
-        status = received_json_data["status"]
-        type_var = received_json_data["type"]
+        # description = received_json_data["description"]
+        # status = received_json_data["status"]
+        # type_var = received_json_data["type"]
         type_var = received_json_data["id"]
 
-        return HttpResponse(status=200)
+        url = todo_server_url + "/todos/"+type_var
+
+        headers = {}
+
+        response = requests.request("PUT", url, headers=headers)
+        
+        if response.status_code == 200:
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
     return HttpResponse(status=404)
 
 
@@ -212,7 +222,7 @@ def todo(request):
 def bio(request):
     if request.method == 'GET':
         userid,groupid = accessTokenVerify(request)
-        user = User.objects.gset(id = userid)
+        user = User.objects.get(id = userid)
         bio = Bio.objects.filter(user = user)
         if bio.count() == 0:
             return HttpResponse(default_html(),status=200)
@@ -310,4 +320,50 @@ def xmenendpoint(request):
         response = requests.request("GET", get_todo_url, headers=headers, params=querystring)
         return HttpResponse(response,status=200)
     return HttpResponse('404')
+
+
+
+@csrf_exempt
+def redirect(request):
+    if request.method == 'GET':
+        userid,groupid = accessTokenVerify(request)
+        user = User.objects.get(id=userid)
+        encoded = jwt.encode({
+                              'email': user.email,
+                              'groupid' : "avenger",
+                              'time': int(time.time())
+                             }, REST_SERVER_TOKEN, algorithm='HS256')   
+        xmen_url = "http://0.0.0.0:9999/hook"
+        payload = "{\"token\" : \""+encoded+"\"}"
+        headers = {
+            'content-type': "application/json",
+            }
+        response = requests.request("POST", xmen_url, data=payload, headers=headers)
+        return HttpResponse(response,status="200")
+    else:
+        return HttpResponse(status="400")
+
+
+@csrf_exempt
+def hook(request):    
+    if request.method == 'POST':
+        print request.body
+        received_json_data=json.loads(request.body)
+        token = received_json_data["token"]
+        decodedjson = jwt.decode(token, REST_SERVER_TOKEN , algorithms=['HS256'])
+        email = decodedjson['email']
+        user = User.objects.get(email=email)
+        encoded = jwt.encode({'userid': user.id,
+                                      'username': user.username,
+                                      'groupid' : "avenger",
+                                      'time': int(time.time())
+                                     }, APPSECRET, algorithm='HS256')
+        AccessToken.objects.create(user = user, jwt=encoded);
+        data={}
+        data['url'] = response = AVENGER_FRONTEND+encoded
+        data['accesstoken'] = encoded
+        return HttpResponse(json.dumps(data),status=200)
+    return HttpResponse('404')
+
+
 

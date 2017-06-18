@@ -1,3 +1,49 @@
+# Dillinger
+
+eig-daredevils-user-microservice is a coordinating backend service. Two instances of this service will run, one each for Avengers and Xmen. It functions as the user management, authentication, authorization(JWT token), serve todos. The service also allows XMEN server to access AVENGERS todo with the correct digital signature and vice-versa. The service gives a redirect endpoint that logs the Avenger user to log in to Xmen server without re-entering the credentials.
+    
+  - User management 
+  - Authentication
+  - Authorization
+  - Serve todos
+  - Both instances(xmen and avenger) can access each others todo
+  - Redirect to each others instance without re-entering the credentials
+
+### Tech
+
+Dillinger uses a number of open source projects to work properly:
+
+* [AngularJS] - HTML enhanced for web apps!
+* [Ace Editor] - awesome web-based text editor
+* [markdown-it] - Markdown parser done right. Fast and easy to extend.
+* [Twitter Bootstrap] - great UI boilerplate for modern web apps
+* [node.js] - evented I/O for the backend
+* [Express] - fast node.js network app framework [@tjholowaychuk]
+* [Gulp] - the streaming build system
+* [Breakdance](http://breakdance.io) - HTML to Markdown converter
+* [jQuery] - duh
+
+### Installation
+
+Dillinger requires [Node.js](https://nodejs.org/) v4+ to run.
+
+Install the dependencies and devDependencies and start the server.
+
+```sh
+$ cd dillinger
+$ npm install -d
+$ node app
+```
+
+For production environments...
+
+```sh
+$ npm install --production
+$ npm run predeploy
+$ NODE_ENV=production node app
+```
+
+
 # eig-daredevils-user-microservice
 user microservice
 
@@ -141,9 +187,9 @@ curl -X POST \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/json' \
   -d '{
-	"description" : "avenger group meet",
-	"status" : "pending",
-	"type" : "group"
+  "description" : "avenger group meet",
+  "status" : "pending",
+  "type" : "group"
 }'
 ```
 ### by ajax
